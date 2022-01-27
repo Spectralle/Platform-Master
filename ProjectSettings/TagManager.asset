@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Climbable Wall
+  - Grabbable Ledge
   layers:
   - Default
   - TransparentFX
