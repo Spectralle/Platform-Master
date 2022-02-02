@@ -1,3 +1,4 @@
+using System.Collections;
 using GameDevHQ.Filebase.DataModels;
 using TMPro;
 using UnityEditor.UIElements;
@@ -13,9 +14,6 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField, Range(800, 1200)] private float _turnSpeed = 1000;
     [Header("Moving:")]
     [SerializeField, Range(1, 100)] private float _defaultMaxSpeed = 13;
-    [SerializeField] private bool _accelerationEnabled = true;
-    [SerializeField, Range(1, 100)] private float _acceleration = 20;
-    [SerializeField, Range(1, 100)] private float _deceleration = 10;
     [SerializeField] private bool _canSprint = true;
     [SerializeField, Range(1, 100)] private float _sprintMaxSpeed = 25;
     [SerializeField, Range(0, 1)] private float _airControl = 0.7f;
@@ -39,6 +37,8 @@ public class PlayerController2D : MonoBehaviour
     [Header("Collision Detection:")]
     [SerializeField] private Bounds _characterBounds;
     [Space]
+    [SerializeField] private float _collisionMainRayLength = 0.1f;
+    [SerializeField] private float _collisionRayLength = 0.1f;
     [SerializeField] private CollisionCorrectionStyle _collisionCorrectionStyle = CollisionCorrectionStyle.Lerp;
 
     private enum CollisionCorrectionStyle { Instant, Lerp }
@@ -67,9 +67,10 @@ public class PlayerController2D : MonoBehaviour
     private AirborneState _airborneState;
     private bool _isSprinting;
     private bool _isLedgeHanging;
-    private const float _ledgeGrabBuffer = 0.5f;
+    private bool _isLedgeClimbing;
+    private const float _ledgeGrabBuffer = 0.3f;
     private float _ledgeGrabBufferTimer;
-    private bool _isWallSliding;
+    private bool _isWallSliding, _wasWallSliding;
     private const float _wallSlideInputBuffer_Attach = 0.2f;
     private const float _wallSlideInputBuffer_Detach = 0.6f;
     private float _wallSlideInputBufferTimer;
@@ -81,8 +82,6 @@ public class PlayerController2D : MonoBehaviour
 
     #region Raycasts and collision detection
     private const float _collisionCorrectionSpeed = 45f;
-    [SerializeField] private float _collisionMainRayLength = 0.1f;
-    [SerializeField] private float _collisionRayLength = 0.1f;
     private Vector3 _targetTransformPosition;
     private Vector3 RelativeCenter => transform.position + _characterBounds.center;
     #region Relative positions and offsets
@@ -131,15 +130,15 @@ public class PlayerController2D : MonoBehaviour
         CollisionCorrections();
         _isGrounded = _isCollidingDownMain;
 
-        if (_isGrounded && !_wasGrounded)
-            BecomeGrounded();
-        else if (!_isGrounded && _wasGrounded)
-            BecomeAirborne();
-
         if (_isGrounded)
             GroundedBehaviour();
         else
             AirborneBehaviour();
+
+        if (_isGrounded && !_wasGrounded)
+            BecomeGrounded();
+        else if ((!_isGrounded && _wasGrounded) || (!_isWallSliding && _wasWallSliding))
+            BecomeAirborne();
 
         if (_isCollidingLeftMain || _isCollidingLeftLower)
             _velocity.x = Mathf.Max(0, _velocity.x);
@@ -151,9 +150,18 @@ public class PlayerController2D : MonoBehaviour
             AirborneApex();
             _airborneState = AirborneState.Falling;
         }
+        
+        if (_flipDirection && _velocity.x != 0 || _isLedgeHanging && _isCollidingRightUpper)
+        {
+            Vector3 targetRotation = new Vector3(_modelToFlip.localEulerAngles.x, _velocity.x < 0 ? _leftRotation : _rightRotation);
+            if (_modelToFlip.localEulerAngles != targetRotation)
+                _modelToFlip.localEulerAngles = Vector3.MoveTowards(
+                    _modelToFlip.localEulerAngles, targetRotation, Time.deltaTime * _turnSpeed);
+        }
 
         _velocity.y = _verticalVelocity;
         _wasGrounded = _isGrounded;
+        _wasWallSliding = _isWallSliding;
 
         Animate();
     }
@@ -185,10 +193,14 @@ public class PlayerController2D : MonoBehaviour
         {
             if (_isLedgeHanging)
             {
-                if (Input.GetButtonDown("Jump"))
+                if (Input.GetAxis("Vertical") > 0 && !_isLedgeClimbing)
+                {
+                    _isLedgeClimbing = true;
+                    StartCoroutine(ClimbUpLedge());
+                }
+                else if (Input.GetAxis("Vertical") < 0)
                 {
                     ReleaseLedge();
-                    Jump(JumpType.FromLedge);
                 }
             }
             else
@@ -228,49 +240,37 @@ public class PlayerController2D : MonoBehaviour
         }
         else
         {
+            if (_anim)
+                _anim.SetBool(IsHangingBraced, true);
             _airborneState = AirborneState.Grounded;
 
             if (_wallSlideInputBufferTimer > _wallSlideInputBuffer_Attach)
                 CalculateMovement(true);
             else
                 _wallSlideInputBufferTimer += Time.deltaTime;
-            _verticalVelocity *= _wallSlideGravityModifier;
+            
+            _verticalVelocity = Mathf.Max(_verticalVelocity - _gravityStrength, -_maxFallSpeed) * _wallSlideGravityModifier;
 
             if (_canWallClimb && _isCollidingSideWall)
+            {
                 if (Input.GetButtonDown("Jump"))
+                {
+                    if (_anim)
+                        _anim.SetBool(IsHangingBraced, false);
                     Jump(JumpType.WallClimb);
+                }
+            }
         }
     }
 
     private void CalculateMovement(bool halfStrength = false)
     {
         _input = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
-        if (_flipDirection && _input.x != 0)
-        {
-            Vector3 targetRotation = new Vector3(_modelToFlip.localEulerAngles.x, _input.x < 0 ? _leftRotation : _rightRotation);
-            if (_modelToFlip.localEulerAngles != targetRotation)
-                _modelToFlip.localEulerAngles = Vector3.MoveTowards(
-                    _modelToFlip.localEulerAngles, targetRotation, Time.deltaTime * _turnSpeed);
-        }
-
         _isSprinting = _canSprint && Input.GetKey(KeyCode.LeftShift);
-        if (_accelerationEnabled)
-        {
-            if (_input.x != 0)
-            {
-                _velocity += _input * (_acceleration * Time.deltaTime);
-                float maxSpeed = !_isSprinting ? _defaultMaxSpeed : _sprintMaxSpeed;
-                _velocity.x = Mathf.Clamp(_velocity.x, -maxSpeed, maxSpeed);
-            }
-            else
-                _velocity.x = Mathf.MoveTowards(_velocity.x, 0, _deceleration * Time.deltaTime);
-        }
-        else
-        {
-            float maxSpeed = !_isSprinting ? _defaultMaxSpeed : _sprintMaxSpeed;
-            _velocity = _input * maxSpeed;
-            _velocity.x = Mathf.Clamp(_velocity.x, -maxSpeed, maxSpeed);
-        }
+        
+        float maxSpeed = !_isSprinting ? _defaultMaxSpeed : _sprintMaxSpeed;
+        _velocity = _input * maxSpeed;
+        _velocity.x = Mathf.Clamp(_velocity.x, -maxSpeed, maxSpeed);
 
         if (halfStrength)
             _velocity *= _airControl;
@@ -464,7 +464,15 @@ public class PlayerController2D : MonoBehaviour
     private void BecomeAirborne()
     {
         if (_airborneState != AirborneState.Rising)
+        {
             _airborneState = AirborneState.Falling;
+            if (_anim)
+            {
+                _anim.SetBool(IsHangingStraight, false);
+                _anim.SetBool(IsHangingBraced, false);
+            }
+        }
+
         _leftGround_Coyote = Time.time;
     }
     private void AirborneApex() {  }
@@ -479,7 +487,6 @@ public class PlayerController2D : MonoBehaviour
 
     private void GrabLedge()
     {
-        Debug.Log("Ledge grab!");
         _isLedgeHanging = true;
         
         _verticalVelocity = 0;
@@ -488,19 +495,17 @@ public class PlayerController2D : MonoBehaviour
         {
             Bounds hitCollider = _leftUpperColHit.collider.bounds;
             Vector3 hitObjTopRight = _leftUpperColHit.transform.position + new Vector3(hitCollider.extents.x, hitCollider.extents.y);
-            transform.position = new Vector3(hitObjTopRight.x + _characterBounds.extents.x,
+            transform.position = new Vector3(
+                hitObjTopRight.x + _characterBounds.extents.x,
                 hitObjTopRight.y - _characterBounds.extents.y);
-            
-            Debug.DrawRay(hitObjTopRight, Vector3.up, Color.white, 100);
         }
         else if (_isCollidingRightUpper)
         {
             Bounds hitCollider = _rightUpperColHit.collider.bounds;
             Vector3 hitObjTopLeft = _rightUpperColHit.transform.position + new Vector3(-hitCollider.extents.x, hitCollider.extents.y);
-            transform.position = new Vector3(hitObjTopLeft.x - _characterBounds.extents.x,
+            transform.position = new Vector3(
+                hitObjTopLeft.x - _characterBounds.extents.x,
                 hitObjTopLeft.y - _characterBounds.extents.y);
-            
-            Debug.DrawRay(hitObjTopLeft, Vector3.up, Color.white, 100);
         }
 
         if (_anim)
@@ -536,7 +541,6 @@ public class PlayerController2D : MonoBehaviour
 
     private void ReleaseLedge()
     {
-        Debug.Log("Ledge release!");
         _ledgeGrabBufferTimer = 0f;
         _isLedgeHanging = false;
         
@@ -547,6 +551,38 @@ public class PlayerController2D : MonoBehaviour
         }
     }
 
+    private IEnumerator ClimbUpLedge()
+    {
+        if (_anim)
+        {
+            _anim.SetBool(IsHangingBraced, false);
+            _anim.SetBool(IsHangingStraight, false);
+        }
+        yield return new WaitForSecondsRealtime(4.23f);
+        ReleaseLedge();
+        
+        if (_isCollidingLeftUpper)
+        {
+            Bounds hitCollider = _leftUpperColHit.collider.bounds;
+            Vector3 hitObjTopRight = _leftUpperColHit.transform.position +
+                                     new Vector3(hitCollider.extents.x, hitCollider.extents.y);
+            transform.position = new Vector3(
+                hitObjTopRight.x - _characterBounds.extents.x,
+                hitObjTopRight.y + _characterBounds.extents.y);
+        }
+        else if (_isCollidingRightUpper)
+        {
+            Bounds hitCollider = _rightUpperColHit.collider.bounds;
+            Vector3 hitObjTopLeft = _rightUpperColHit.transform.position +
+                                    new Vector3(-hitCollider.extents.x, hitCollider.extents.y);
+            transform.position = new Vector3(
+                hitObjTopLeft.x + _characterBounds.extents.x,
+                hitObjTopLeft.y + _characterBounds.extents.y);
+        }
+
+        _isLedgeClimbing = false;
+    }
+    
     
     private void OnDrawGizmos()
     {
