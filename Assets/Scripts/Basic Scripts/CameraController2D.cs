@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+
 
 [RequireComponent(typeof(Camera))]
 public class CameraController2D : MonoBehaviour

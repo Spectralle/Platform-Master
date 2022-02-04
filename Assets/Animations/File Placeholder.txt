@@ -1,0 +1,1 @@
+An empty placeholder file just used to allow empty folders to be saved into a UnityPackage file.

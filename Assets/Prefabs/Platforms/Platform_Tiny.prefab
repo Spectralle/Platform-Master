@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 5880501430903390313}
   - component: {fileID: 191180394914626704}
   m_Layer: 0
-  m_Name: Scifi_Floors_03
+  m_Name: Platform_Tiny
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -106,8 +106,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1917376217409226828}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.06, z: 11.89}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5291163937279027880}
@@ -602,8 +602,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8478391650470336259}
   m_LocalRotation: {x: 0.65328157, y: 0.2705982, z: 0.65328157, w: -0.27059782}
-  m_LocalPosition: {x: 1.11, y: -1.06, z: -0.751}
-  m_LocalScale: {x: 0.92313784, y: 1, z: 1.5452}
+  m_LocalPosition: {x: 1.11, y: -1.06, z: -0.746}
+  m_LocalScale: {x: 0.93, y: 1, z: 1.5452}
   m_Children: []
   m_Father: {fileID: 3224782229928639071}
   m_RootOrder: 1
@@ -683,8 +683,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8555844751493563010}
   m_LocalRotation: {x: 0.65328157, y: 0.2705982, z: 0.65328157, w: -0.27059782}
-  m_LocalPosition: {x: 1.11, y: -1.06, z: 0.7499993}
-  m_LocalScale: {x: 0.92313784, y: 1, z: 1.5452}
+  m_LocalPosition: {x: 1.11, y: -1.06, z: 0.746}
+  m_LocalScale: {x: 0.93, y: 1, z: 1.5452}
   m_Children: []
   m_Father: {fileID: 3224782229928639071}
   m_RootOrder: 2

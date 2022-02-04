@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+
 
 public class AudioSystem : Singleton<AudioSystem>
 {
@@ -10,8 +9,8 @@ public class AudioSystem : Singleton<AudioSystem>
     [SerializeField] private AudioSource _sfxSource;
     [SerializeField] private AudioSource _uiSource;
     [Space]
-    [SerializeField] private Vector2 _randomVolumeRange;
-    [SerializeField] private Vector2 _randomPitchRange;
+    [SerializeField] private Vector2 _randomVolumeRange = new Vector2(0.1f, 0.1f);
+    [SerializeField] private Vector2 _randomPitchRange = new Vector2(0.1f, 0.1f);
 #pragma warning restore CS0649
 
 
