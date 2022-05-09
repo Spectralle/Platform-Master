@@ -23,7 +23,7 @@ Material:
   m_Name: Back wall 5 - Screen
   m_Shader: {fileID: -6465566751694194690, guid: d31377db368661c4db9cdf24315c4103, type: 3}
   m_ShaderKeywords: 
-  m_LightmapFlags: 4
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -61,7 +61,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 17d0bdbaefef8ba419b5782568f24b94, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0a5ec6ac94227b9459d993ad8a772a30, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -77,7 +77,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ScrolliingBarTexture:
-        m_Texture: {fileID: 2800000, guid: 3a090925d2aa0e7409b60bf7f80f8853, type: 3}
+        m_Texture: {fileID: 2800000, guid: 897c9cc6b8ef78646aa1fb98aeb42045, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -108,6 +108,7 @@ Material:
     - Vector1_b4f827986e3c4ca59cf1a05c6d6d1917: 0.2
     - Vector1_d04a016172c84baeb88b008f2a7a7363: 100
     - Vector1_d7db7aef79794fcb96fded91252d832f: 2
+    - Vector1_e180aea3894948ef86c492be716028d2: 0.2
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -118,13 +119,14 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EmissionMultiplier: 5
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _LogoDistortionDetail: 500
+    - _LogoDistortionDetail: 230
     - _LogoDistortionFrequency: 5
-    - _LogoDistortionStrength: 0.13
+    - _LogoDistortionStrength: 0.15
     - _Metallic: 0.7
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -133,15 +135,15 @@ Material:
     - _SampleGI: 0
     - _ScrollSpeed: 0.2
     - _ScrollingBarCount: 1.4
-    - _ScrollingBarDistortionDetail: 30
-    - _ScrollingBarDistortionStrength: 0.3
-    - _ScrollingBarSpeed: 0.5
+    - _ScrollingBarDistortionDetail: 40
+    - _ScrollingBarDistortionStrength: 0.5
+    - _ScrollingBarSpeed: 0.2
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _StaticIntensity: 0.095
-    - _StaticScale: 300
+    - _StaticIntensity: 0.22
+    - _StaticScale: 150
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
@@ -159,10 +161,10 @@ Material:
     - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LogoColor: {r: 1, g: 0.007843138, b: 0, a: 1}
+    - _LogoColor: {r: 1.0039216, g: 0.007843138, b: 0, a: 1}
     - _LogoTiling: {r: 1, g: 1, b: 0, a: 0}
-    - _ScrollingBarColor: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 1}
+    - _ScrollingBarColor: {r: 0.013, g: 0.013, b: 0.013, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _StaticColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
+    - _StaticColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
     - _staticColor: {r: 2, g: 2, b: 2, a: 1}
   m_BuildTextureStacks: []

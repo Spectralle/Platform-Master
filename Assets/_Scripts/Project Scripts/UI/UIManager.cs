@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : Singleton<UIManager>
@@ -13,11 +14,11 @@ public class UIManager : Singleton<UIManager>
 
         public void Update(string value) => _text.SetText($"{_prefix}{value}{_suffix}");
     }
-    [SerializeField] private UIElement _lives;
+    [SerializeField] private Image _lives;
     [SerializeField] private UIElement _collectables;
 
 
-    public void UpdateLives(int value) => _lives.Update(value.ToString());
+    public void UpdateLives(int value, int max) => _lives.fillAmount = value / max;
 
     public void UpdateCoins(int value) => _collectables.Update(value.ToString());
 }

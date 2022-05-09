@@ -18,7 +18,7 @@ public class PlayerHealthManager : MonoBehaviour
     private void Start()
     {
         if (UIManager.Instance)
-            UIManager.Instance.UpdateLives(_currentLives);
+            UIManager.Instance.UpdateLives(_currentLives, _lives);
         if (RespawnManager.Instance)
             RespawnManager.Instance.SetRespawnPoint(transform.position, null);
     }
@@ -35,7 +35,7 @@ public class PlayerHealthManager : MonoBehaviour
             Die();
 
         if (UIManager.Instance)
-            UIManager.Instance.UpdateLives(_currentLives);
+            UIManager.Instance.UpdateLives(_currentLives, _lives);
     }
 
     public void TakeFatalDamage() => TakeDamage(_currentLives);

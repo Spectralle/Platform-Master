@@ -20,12 +20,12 @@ public class GameStateManager : Singleton<GameStateManager>
         Lose,
         Exiting
     }
-    public GameState State { get; private set; }
+    public static GameState State { get; private set; }
 
 
     private void Start() => ChangeState(GameState.Setup);
 
-    public void ChangeState(GameState newGameState)
+    public static void ChangeState(GameState newGameState)
     {
         if (State == newGameState)
             return;
@@ -67,14 +67,14 @@ public class GameStateManager : Singleton<GameStateManager>
         OnAfterStateChanged?.Invoke(newGameState);
     }
 
-    private void HandleSetup()
+    private static void HandleSetup()
     {
         // Anything to set up the scene ready for gameplay.
 
         ChangeState(GameState.Gameplay);
     }
 
-    private void HandleGameplay()
+    private static void HandleGameplay()
     {
         // Anything that happens during gameplay. It is likely that more
         // states should replace this one to account for game complexity.
@@ -82,21 +82,21 @@ public class GameStateManager : Singleton<GameStateManager>
 
     }
 
-    private void HandleGameWin()
+    private static void HandleGameWin()
     {
         // Anything that should happen when the player meets the win
         // condition of the game.
 
     }
 
-    private void HandleGameLose()
+    private static void HandleGameLose()
     {
         // Anything that should happen when the player meets the lose
         // condition of the game.
 
     }
 
-    private void HandleExit()
+    private static void HandleExit()
     {
         // Anything that should happen as the game exits.
 

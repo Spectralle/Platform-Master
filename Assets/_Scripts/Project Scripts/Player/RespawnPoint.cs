@@ -32,6 +32,9 @@ public class RespawnPoint : MonoBehaviour
                 break;
         }
 
+        if (!_resetPlayerLives)
+            return;
+
         other.TryGetComponent(out PlayerHealthManager health);
         if (health)
             health.ResetLives();
