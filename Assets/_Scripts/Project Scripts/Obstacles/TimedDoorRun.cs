@@ -13,12 +13,12 @@ public class TimedDoorRun : MonoBehaviour
     [SerializeField] private float _timescale = 0.4f;
     [SerializeField] private string[] _messages;
 
-    private bool _started;
+    private bool _hasStarted;
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !_started)
+        if (other.CompareTag("Player") && !_hasStarted)
             StartCoroutine(ShowWarning());
     }
 
@@ -34,7 +34,7 @@ public class TimedDoorRun : MonoBehaviour
         }
 
         _text.SetText("");
-        _started = true;
+        _hasStarted = true;
         _player.enabled = true;
         Time.timeScale = 1f;
 
@@ -48,5 +48,11 @@ public class TimedDoorRun : MonoBehaviour
             yield return new WaitForSeconds(_timings[i]);
             _doors[i].Play("Functional Door_Close");
         }
+    }
+
+    public void ResetRun()
+    {
+        StopAllCoroutines();
+        _hasStarted = false;
     }
 }

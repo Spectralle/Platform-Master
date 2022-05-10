@@ -11,7 +11,6 @@ public class RespawnManager : Singleton<RespawnManager>
         if (_lastPointPassed == respawnPoint)
             return;
 
-        Debug.Log($"Respawn point set to {newRespawnPoint}");
         _respawnPoint = newRespawnPoint;
         _lastPointPassed = respawnPoint;
     }

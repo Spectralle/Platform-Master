@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class MovingPlatform : MonoBehaviour
 {
@@ -13,6 +16,8 @@ public class MovingPlatform : MonoBehaviour
     [SerializeField, Range(-1f, 5f)] private float _waitAtWaypoints = 0f;
     [SerializeField] private bool _loop;
     [SerializeField, Min(0)] private int _startAtWaypoint = 0;
+    [Space]
+    [SerializeField] private Color _labelColor = Color.white;
 
     private bool _movementEnabled = true;
     private int _currentIndex = 1;
@@ -95,6 +100,8 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.gameObject.layer == 3)
         {
+            Debug.Log("Player entered");
+
             if (!_objectsOnPlatform.ContainsKey(other.transform))
             {
                 _objectsOnPlatform.Add(other.transform, other.transform.parent);
@@ -107,6 +114,8 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.gameObject.layer == 3)
         {
+            Debug.Log("Player exited");
+
             if (_objectsOnPlatform.ContainsKey(other.transform))
             {
                 other.transform.parent = _objectsOnPlatform[other.transform];
@@ -129,7 +138,7 @@ public class MovingPlatform : MonoBehaviour
         if (_waypoints.Length == 0)
             return;
 
-        Vector3 parPos = transform.parent.position;
+        Vector3 parPos = transform.parent ? transform.parent.position : Vector3.zero;
         for (int i = 0; i < _waypoints.Length; i++)
         {
             Gizmos.color = Color.black;
@@ -141,6 +150,26 @@ public class MovingPlatform : MonoBehaviour
         }
 
         if (_loop)
-            Gizmos.DrawLine(parPos + (Vector3)_waypoints[0], parPos + (Vector3)_waypoints[_waypoints.Length - 1]);
+            Gizmos.DrawLine(parPos + (Vector3)_waypoints[0], parPos + (Vector3)_waypoints[_waypoints.Length - 1]); 
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 parPos = transform.parent ? transform.parent.position : Vector3.zero;
+        for (int i = 0; i < _waypoints.Length; i++)
+        {
+            string labelName = transform.parent ? transform.parent.name : transform.name;
+            GizmoLabel(parPos + (Vector3)_waypoints[i], $"{labelName} WP{i}", _labelColor);
+        }
+    }
+
+    private void GizmoLabel(Vector3 point, string label, Color textColor)
+    {
+        GUIStyle style = new GUIStyle();
+        style.alignment = TextAnchor.MiddleLeft;
+        style.normal.textColor = textColor;
+        Handles.Label(point, label, style);
+    }
+#endif
 }
